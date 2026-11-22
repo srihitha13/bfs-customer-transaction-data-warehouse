@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: bfs_bronze
+    database: retail-sales-de-srihitha
+    schema: bfs_bronze
+
+    tables:
+      - name: customers_day1
+      - name: customers_day2
+      - name: customers_day3
+
+      - name: accounts_day1
+      - name: accounts_day2
+      - name: accounts_day3
+
+      - name: transactions_day1
+      - name: transactions_day2
+      - name: transactions_day3

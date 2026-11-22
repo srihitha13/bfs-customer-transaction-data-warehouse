@@ -221,3 +221,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# Generated banking CSV data
+data/**/*.csv
+
+# Python
+__pycache__/
+*.pyc
+
+# Secrets / credentials
+*.json
+.env
+
+# dbt generated files
+target/
+logs/
+dbt_packages/
+# Python virtual environment
+.venv/
