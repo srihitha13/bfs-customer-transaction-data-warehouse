@@ -1,0 +1,18 @@
+snapshots:
+  - name: customer_snapshot
+
+    relation: ref('current_customers')
+
+    config:
+      schema: bfs_snapshots
+
+      unique_key: customer_id
+
+      strategy: check
+
+      check_cols:
+        - address
+        - city
+        - state
+        - postal_code
+        - kyc_status

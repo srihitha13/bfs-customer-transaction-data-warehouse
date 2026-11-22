@@ -1,0 +1,63 @@
+name: dbt CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  dbt-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dbt BigQuery
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install dbt-bigquery
+
+      - name: Create GCP credentials file
+        shell: bash
+        env:
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_DBT_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$GCP_SERVICE_ACCOUNT" > "$RUNNER_TEMP/gcp-key.json"
+
+      - name: Create dbt profiles.yml
+        shell: bash
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml <<EOF
+          bfs_dbt:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                project: retail-sales-de-srihitha
+                dataset: bfs_silver
+                keyfile: $RUNNER_TEMP/gcp-key.json
+                location: asia-south1
+                threads: 4
+                priority: interactive
+                timeout_seconds: 300
+          EOF
+
+      - name: dbt debug
+        working-directory: dbt/bfs_dbt
+        run: dbt debug
+
+      - name: dbt parse
+        working-directory: dbt/bfs_dbt
+        run: dbt parse
+
+      - name: dbt test
+        working-directory: dbt/bfs_dbt
+        run: dbt test

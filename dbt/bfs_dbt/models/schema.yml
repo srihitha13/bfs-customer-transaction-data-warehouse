@@ -1,0 +1,116 @@
+version: 2
+
+models:
+  - name: silver_customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: kyc_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - VERIFIED
+                  - PENDING
+                  - REJECTED
+
+  - name: silver_accounts
+    columns:
+      - name: account_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_customers')
+                field: customer_id
+
+      - name: account_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - SAVINGS
+                  - CURRENT
+
+      - name: account_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - ACTIVE
+                  - INACTIVE
+
+  - name: silver_transactions
+    columns:
+      - name: transaction_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: account_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_accounts')
+                field: account_id
+
+      - name: transaction_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - CREDIT
+                  - DEBIT
+
+      - name: transaction_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - SUCCESS
+                  - FAILED
+                  - PENDING
+
+      - name: amount
+        data_tests:
+          - not_null
+
+  - name: dim_customer
+    columns:
+      - name: customer_sk
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        data_tests:
+          - not_null
+
+      - name: is_current
+        data_tests:
+          - not_null
+
+  - name: fact_transactions
+    columns:
+      - name: transaction_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_sk
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_sk
